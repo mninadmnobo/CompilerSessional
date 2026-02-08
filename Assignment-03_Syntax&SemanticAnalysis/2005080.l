@@ -10,10 +10,7 @@
 #include<ctype.h>
 #include<string.h>
 #include<bits/stdc++.h>
-#include "2005080_SymbolInfo.h"
-#include "2005080_ParseTree.h"
-#include "2005080_SymbolTable.h"
-#include "2005080_HelperFunction.h"
+#include "2005080_HelperFunction.cpp"
 #include "y.tab.hpp"
 using namespace std;
 extern YYSTYPE yylval;
@@ -45,7 +42,6 @@ char tokenString[500]="";
 char logString[500]="";
 int warningCount=0;
 HelperFunction *h2= new HelperFunction();
-extern vector<SymbolInfo*> *func_variables;
 extern vector<SymbolInfo*> *delete_symbol_list;
 
 
@@ -574,7 +570,7 @@ return {
 }
 
 . {
-    log_file<<"Error at line# "<<yylineno<<": "<<"UNRECOGNIZED_CHAR"<<yytext<<endl;
+    log_file<<"Error at line# "<<yylineno<<": "<<"UNRECOGNIZED CHAR "<<yytext<<endl;
    // writeErrorToLogFile(log_file,"UNRECOGNIZED_CHAR",yytext,yylineno);
     errorCount++;
 }

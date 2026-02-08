@@ -9,7 +9,7 @@
 #include<stdio.h>
 #include<ctype.h>
 #include<string.h>
-#include "2005080_SymbolTable.h"
+#include "SymbolTable/2005080_SymbolTable.cpp"
 #include <string>
 int wordcount = 0;
 FILE *token_file; 
@@ -329,8 +329,7 @@ if|else|while|for|do|break|int|char|float|double|void|return|switch|case|default
 }
 <COMMENT_ASTERISK>\*\/ {
     string cppString(yytext);
-    commentString+=cppString;
-    writeToLogFile(log_file,"MULTI LINE COMMENT", commentString.c_str(), yylineno);
+    commentString+=cppString;    writeToLogFile(log_file,"MULTI LINE COMMENT", commentString.c_str(), yylineno);
     yylineno+=tempCount;
     BEGIN INITIAL;
 }
@@ -360,13 +359,11 @@ if|else|while|for|do|break|int|char|float|double|void|return|switch|case|default
         char buffer[500];
         string str;
         str.assign(commentString);
-        str.erase(str.find_last_not_of(" \n\r\t")+1);
-        writeToLogFile(log_file,"SINGLE LINE COMMENT", str.c_str(), yylineno);
+        str.erase(str.find_last_not_of(" \n\r\t")+1);        writeToLogFile(log_file,"SINGLE LINE COMMENT", str.c_str(), yylineno);
         yylineno+=tempCount+1;
         BEGIN INITIAL;
 }
-<COMMENT><<EOF>> {
-        writeToLogFile(log_file,"SINGLE LINE COMMENT", commentString.c_str(), yylineno);
+<COMMENT><<EOF>> {        writeToLogFile(log_file,"SINGLE LINE COMMENT", commentString.c_str(), yylineno);
         yylineno+=tempCount;
         printEnd();
         fclose(token_file);

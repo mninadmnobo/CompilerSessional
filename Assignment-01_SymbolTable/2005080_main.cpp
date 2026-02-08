@@ -3,18 +3,19 @@
 #include <string>
 #include <sstream>
 #include <typeinfo>
-#include "2005080_SymbolTable/2005080_SymbolTable.h"
+#include "SymbolTable/2005080_SymbolTable.cpp"
 using namespace std;
 
 // File IO variables
-string INPUT_FILE = "input.txt";
-string OUTPUT_FILE = "output.txt";
+string INPUT_FILE = "input/input.txt";
+string OUTPUT_FILE = "output/2005080_output_01.txt";
 int cmdCount = 0;
 ifstream inFile(INPUT_FILE);
-ofstream outFile(OUTPUT_FILE);
+FILE* outFile;
 
 int main()
 {
+    outFile = fopen(OUTPUT_FILE.c_str(), "w");
     string line;
     if (!inFile.is_open())
     {
@@ -22,14 +23,17 @@ int main()
         return 1;
     }
     getline(inFile, line);
-    istringstream iss(line);
-    int bucketSize;
+    istringstream iss(line);    int bucketSize;
     iss >> bucketSize;
     // cout<<"           "<<bucketSize<<"bsize"<<endl;
-    SymbolTable *symbolTable = new SymbolTable(bucketSize);
+    SymbolTable *symbolTable = new SymbolTable(bucketSize, outFile);
     while (getline(inFile, line))
     {
-        outFile <<"Cmd "<<++cmdCount<<": "<< line << endl;
+        // Remove trailing carriage return if present (for CRLF line endings)
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        fprintf(outFile, "Cmd %d: %s\n", ++cmdCount, line.c_str());
         istringstream iss(line);
         string firstChar;
         iss >> firstChar;
@@ -40,12 +44,10 @@ int main()
             iss >> symbolName >> symbolType;
             if (symbolName != "" && symbolType != "")
             {
-                SymbolInfo *symbol = new SymbolInfo(symbolName, symbolType);
-                symbolTable->insert(symbol);
-            }
-            else
+                SymbolInfo *symbol = new SymbolInfo(symbolName, symbolType);                symbolTable->insert(symbol);
+            }            else
             {
-                outFile<<"\t" << "Wrong number of arugments for the command I" << endl;
+                fprintf(outFile, "\tWrong number of arguments for the command I\n");
             }
         }
 
@@ -54,34 +56,30 @@ int main()
             string symbolName, secondname;
             iss >> symbolName >> secondname;
             if (secondname == "")
-            {
-                if (symbolTable->lookup(symbolName) == nullptr)
+            {                if (symbolTable->lookup(symbolName) == nullptr)
                 {
-                    outFile<<"\t" << "'" << symbolName << "' "
-                         << "not found in any of the ScopeTables" << endl;
+                    fprintf(outFile, "\t'%s' not found in any of the ScopeTables\n", symbolName.c_str());
                 }
-            }
-            else
+            }            else
             {
-                outFile<<"\t" << "Wrong number of arugments for the command L" << endl;
+                fprintf(outFile, "\tWrong number of arguments for the command L\n");
             }
         }
 
         if (firstChar == "P")
         {
             string secondChar;
-            iss >> secondChar;
-            if (secondChar == "C")
+            iss >> secondChar;            if (secondChar == "C")
             {
-                symbolTable->printCurrent();
+                symbolTable->printCurrent(outFile);
             }
             else if (secondChar == "A")
             {
-                symbolTable->printAll();
+                symbolTable->printAll(outFile);
             }
             else
             {
-                outFile<<"\t" << "Invalid argument for the command P" << endl;
+                fprintf(outFile, "\tInvalid argument for the command P\n");
             }
         }
 
@@ -89,14 +87,12 @@ int main()
         {
 
             string secondChar;
-            iss >> secondChar;
-            if (secondChar != "")
+            iss >> secondChar;            if (secondChar != "")
             {
                 symbolTable->remove(secondChar);
-            }
-            else
+            }            else
             {
-                outFile<<"\t" << "Wrong number of arugments for the command D" << endl;
+                fprintf(outFile, "\tWrong number of arguments for the command D\n");
             }
         }
         if (firstChar == "S")
@@ -112,10 +108,7 @@ int main()
         {
             delete symbolTable;
             break;
-        }
-    }
-
-    inFile.close();
-    outFile.close();
+        }    }    inFile.close();
+    fclose(outFile);
     return 0;
 }

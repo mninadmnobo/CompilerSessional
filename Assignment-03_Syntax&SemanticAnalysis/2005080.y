@@ -24,9 +24,7 @@ rm a.out
 
 %{
 #include<bits/stdc++.h>
-#include "2005080_ParseTree.h"
-#include "2005080_HelperFunction.h"
-#include "2005080_SymbolTable.h"
+#include "2005080_HelperFunction.cpp"
 using namespace std;
 int yyparse(void);
 int yylex(void);
@@ -36,7 +34,6 @@ ofstream parsetree_file;
 ofstream log_file;
 ofstream error_file;
 int bucketSize=11;
-extern expression expressionValues;
 int errorCount=0;
 SymbolTable *table = new SymbolTable(bucketSize);
 HelperFunction *h= new HelperFunction();
@@ -1179,19 +1176,37 @@ arguments : arguments COMMA logic_expression
 %%
 int main(int argc,char *argv[])
 {
+    if(argc < 2)
+    {
+        printf("Usage: %s <input_file> [output_log] [output_error] [output_parsetree]\n", argv[0]);
+        exit(1);
+    }
     FILE *fp;
 	if((fp=fopen(argv[1],"r"))==NULL)
 	{
 		printf("Cannot open input file.\n");
 		exit(1);
 	}
-    string input_file_name = argv[1];
-	string parsetree_file_name = input_file_name.substr(0,input_file_name.size()-2) + "_parsetree.txt";
-    string log_file_name = input_file_name.substr(0,input_file_name.size()-2) + "_log.txt";
-    string error_file_name = input_file_name.substr(0,input_file_name.size()-2) + "_error.txt";
-    parsetree_file.open(parsetree_file_name);
+
+    string log_file_name, error_file_name, parsetree_file_name;
+    if(argc >= 5)
+    {
+        log_file_name = argv[2];
+        error_file_name = argv[3];
+        parsetree_file_name = argv[4];
+    }
+    else
+    {
+        string input_file_name = argv[1];
+        string base = input_file_name.substr(0, input_file_name.size()-2);
+        log_file_name = base + "_log.txt";
+        error_file_name = base + "_error.txt";
+        parsetree_file_name = base + "_parsetree.txt";
+    }
+
     log_file.open(log_file_name);
     error_file.open(error_file_name);
+    parsetree_file.open(parsetree_file_name);
 	yyin=fp;
 	yyparse();
     parsetree_file.close();
